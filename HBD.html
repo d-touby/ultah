@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selamat Ulang Tahun!</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&family=Sacramento&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+            color: #444;
+        }
+
+        /* Container Utama */
+        .container {
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Halaman Pembuka (Cover) */
+        #cover {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+
+        button {
+            padding: 12px 30px;
+            background: #a18cd1;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 5px 15px rgba(161, 140, 209, 0.4);
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(161, 140, 209, 0.6);
+        }
+
+        /* Halaman Isi (Disembunyikan di awal) */
+        #content {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 50px 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            max-width: 500px;
+            animation: popUp 0.8s ease forwards;
+        }
+
+        h1 {
+            font-family: 'Sacramento', cursive;
+            font-size: 3.5rem;
+            color: #8e44ad;
+            margin-bottom: 10px;
+        }
+
+        p {
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            color: #555;
+        }
+
+        .highlight {
+            font-weight: 600;
+            color: #a18cd1;
+        }
+
+        /* Animasi */
+        @keyframes popUp {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Canvas untuk Confetti */
+        #confetti-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .footer-note {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 30px;
+            font-style: italic;
+        }
+
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <div class="container">
+        <div id="cover">
+            <h2>Hai Kamu!</h2>
+            <p style="margin: 20px 0;">Ada pesan kecil buatmu hari ini.</p>
+            <button onclick="openLetter()">Buka Pesan</button>
+        </div>
+
+        <div id="content">
+            <h1>Selamat Ulang Tahun!</h1>
+            <p>
+                Selamat bertambah usia. <br>
+                Tidak ada kata-kata panjang, hanya doa tulus ini:
+            </p>
+            <p>
+                Semoga di usia yang baru ini, kamu selalu diberikan 
+                <span class="highlight">kesehatan yang baik</span>, 
+                langkah yang dimudahkan, dan hati yang selalu bahagia.
+            </p>
+            <p>
+                Semoga apa yang kamu semogakan segera terwujud, 
+                dan kamu selalu dikelilingi oleh hal-hal baik.
+            </p>
+            <p>
+                Tetaplah menjadi orang baik seperti yang aku kenal.
+                Enjoy your day! 🎉
+            </p>
+            
+            <p class="footer-note">— Dari seseorang yang selalu mendoakanmu</p>
+        </div>
+    </div>
+
+    <audio id="backsound" loop>
+        <source src="selamat-ulang-tahun.mp4" type="audio/mpeg">
+        Browser kamu tidak mendukung audio.
+    </audio>
+
+    <script>
+        function openLetter() {
+            const cover = document.getElementById('cover');
+            const content = document.getElementById('content');
+            const audio = document.getElementById('backsound');
+
+            // Efek transisi
+            cover.style.opacity = '0';
+            cover.style.transform = 'scale(0.8)';
+            
+            setTimeout(() => {
+                cover.style.display = 'none';
+                content.style.display = 'block';
+                
+                // Memulai Musik
+                audio.volume = 0.5; // Volume 50%
+                audio.play().catch(error => {
+                    console.log("Autoplay dicegah oleh browser, user perlu interaksi dulu.");
+                });
+
+                // Mulai Confetti
+                startConfetti();
+            }, 500);
+        }
+
+        // --- Script Sederhana untuk Confetti ---
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particles = [];
+        const colors = ['#a18cd1', '#fbc2eb', '#8fd3f4', '#84fab0', '#ff9a9e'];
+
+        function createParticle() {
+            return {
+                x: Math.random() * canvas.width,
+                y: -10,
+                size: Math.random() * 5 + 2,
+                speedY: Math.random() * 3 + 2,
+                speedX: (Math.random() - 0.5) * 2,
+                color: colors[Math.floor(Math.random() * colors.length)]
+            };
+        }
+
+        function startConfetti() {
+            // Membuat partikel awal
+            for(let i=0; i<100; i++) {
+                particles.push(createParticle());
+            }
+            animateConfetti();
+        }
+
+        function animateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach((p, index) => {
+                p.y += p.speedY;
+                p.x += p.speedX;
+                
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Reset partikel jika keluar layar
+                if(p.y > canvas.height) {
+                    particles[index] = createParticle();
+                }
+            });
+
+            requestAnimationFrame(animateConfetti);
+        }
+
+        // Resize canvas saat layar diubah ukurannya
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
